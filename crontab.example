@@ -1,0 +1,20 @@
+# Crontab pour SiteVitrine Automation
+# À ajouter avec: crontab -e
+
+# Variables d'environnement
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+NODE_PATH=/home/nadir/Bureau/SiteVitrine/scripts/node_modules
+
+# Every 2 hours from 00:30 to 06:30
+# Run prospect → generate → deploy → email cycle
+30 0,2,4,6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/cron-runner.js >> ../../logs/cron.log 2>&1
+
+# Health check every 30 minutes
+*/30 * * * * cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/health-check.js >> ../../logs/health.log 2>&1
+
+# Daily report at 06:45
+45 6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/daily-report.js >> ../../logs/reports.log 2>&1
+
+# Cleanup old generated sites (weekly, Sundays at 3AM)
+0 3 * * 0 cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/cleanup.js >> ../../logs/cleanup.log 2>&1
