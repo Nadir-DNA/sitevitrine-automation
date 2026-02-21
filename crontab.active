@@ -1,13 +1,27 @@
-# SiteVitrine Automation - DÉSACTIVÉ pour l'instant
-# Phase 1: Préparation manuelle des sites
-# Phase 2: Test SMS demain (5 prospects)
-# Phase 3: Activation auto après validation
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin:/home/nadir/.npm-global/bin
+NODE_PATH=/home/nadir/Bureau/SiteVitrine/scripts/node_modules
 
-# SHELL=/bin/bash
-# PATH=/usr/local/bin:/usr/bin:/bin
-# NODE_PATH=/home/nadir/Bureau/SiteVitrine/scripts/node_modules
+# SITEVITRINE - CRONS NUIT DEV/TEST (00h-06h)
+# Chaque heure teste une étape différente pour faire progresser le code
 
-# TODO: Activer après validation du test SMS
-# 30 0 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/cron-runner.js >> ../../logs/cron-00h30.log 2>&1
+# 00h30: TEST FETCH - Google Sheets
+30 0 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/00-fetch.log 2>&1
 
-# Pour l'instant: utiliser npm run prepare puis npm run test:sms
+# 01h30: TEST SCRAPER - Google Maps
+30 1 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/01-scraper.log 2>&1
+
+# 02h30: TEST GENERATE - HTML/CSS
+30 2 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/02-generate.log 2>&1
+
+# 03h30: TEST DEPLOY - GitHub Pages
+30 3 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/03-deploy.log 2>&1
+
+# 04h30: TEST SMS - Vérification (sans envoi)
+30 4 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/04-sms.log 2>&1
+
+# 05h30: TEST E2E - Flux complet
+30 5 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/05-e2e.log 2>&1
+
+# 06h45: RAPPORT FINAL
+45 6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/06-final.log 2>&1
