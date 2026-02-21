@@ -1,0 +1,50 @@
+[
+  {
+    "id": "test-001",
+    "nom": "Martin Dupont",
+    "raison_sociale": "Coiffure Martin",
+    "activite": "coiffeur",
+    "metier": "coiffeur",
+    "adresse": "12 Rue de Paris, 75001 Paris",
+    "ville": "Paris",
+    "telephone": "+33123456789",
+    "email": "contact@coiffure-martin.fr",
+    "portable": "+33612345678",
+    "has_website": false,
+    "description": "Salon de coiffure tendance au cœur de Paris",
+    "annee_creation": "2015",
+    "siret": "12345678900012"
+  },
+  {
+    "id": "test-002",
+    "nom": "Sophie Bernard",
+    "raison_sociale": "Institut Sophie",
+    "activite": "esthéticienne",
+    "metier": "esthéticienne",
+    "adresse": "45 Avenue Lyon, 69002 Lyon",
+    "ville": "Lyon",
+    "telephone": "+33456789012",
+    "email": "sophie@institut.fr",
+    "portable": "+33698765432",
+    "has_website": false,
+    "description": "Institut de beauté et bien-être à Lyon",
+    "annee_creation": "2018",
+    "siret": "98765432100021"
+  },
+  {
+    "id": "test-003",
+    "nom": "Jean Moreau",
+    "raison_sociale": "Plomberie Moreau",
+    "activite": "plombier",
+    "metier": "plombier",
+    "adresse": "8 Rue des Artisans, 33000 Bordeaux",
+    "ville": "Bordeaux",
+    "telephone": "+33567890123",
+    "email": "jean@plomberie-moreau.fr",
+    "portable": "+33655544433",
+    "has_website": false,
+    "description": "Plombier professionnel urgentiste à Bordeaux",
+    "annee_creation": "2010",
+    "siret": "45678912300045"
+  }
+]

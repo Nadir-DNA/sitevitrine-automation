@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { fetchProspects } from './fetch-prospects.js';
 import { generateSites } from './generate-sites.js';
 import { deploySites } from './deploy-sites.js';
