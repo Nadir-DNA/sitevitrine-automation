@@ -7,12 +7,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.join(__dirname, '../../generated');
 
 const METIER_CONFIG = {
-  'electricien': { title: 'Électricien', services: ['Installation électrique', 'Dépannage urgent', 'Mise aux normes', 'Tableau électrique'], color: '#f59e0b', icon: '⚡' },
-  'plombier': { title: 'Plombier', services: ['Dépannage urgent', 'Installation sanitaire', 'Chauffage', 'Débouchage'], color: '#3b82f6', icon: '🔧' },
-  'fleuriste': { title: 'Fleuriste', services: ['Bouquets personnalisés', 'Mariage', 'Deuil', 'Plantes'], color: '#ec4899', icon: '🌸' },
-  'coiffeur': { title: 'Coiffeur', services: ['Coupe homme/femme', 'Coloration', 'Coiffure événement', 'Soin capillaire'], color: '#8b5cf6', icon: '💇' },
-  'institut': { title: 'Institut de beauté', services: ['Soins visage', 'Massage', 'Épilation', 'Manucure'], color: '#ec4899', icon: '💆' },
-  'default': { title: 'Artisan', services: ['Service personnalisé', 'Devis gratuit', 'Intervention rapide', 'Garantie décennale'], color: '#10b981', icon: '🛠️' }
+  'electricien': { title: 'Électricien', services: ['Installation électrique', 'Dépannage urgent', 'Mise aux normes', 'Tableau électrique'], color: '#4F46E5', icon: '⚡', emojis: ['⚡', '🔌', '💡', '🔧'] },
+  'plombier': { title: 'Plombier', services: ['Dépannage urgent', 'Installation sanitaire', 'Chauffage', 'Débouchage'], color: '#3B82F6', icon: '🔧', emojis: ['🔧', '🚿', '🚽', '🔥'] },
+  'fleuriste': { title: 'Fleuriste', services: ['Bouquets personnalisés', 'Mariage', 'Deuil', 'Plantes'], color: '#EC4899', icon: '🌸', emojis: ['🌸', '🌹', '🌻', '🌿'] },
+  'coiffeur': { title: 'Coiffeur', services: ['Coupe homme/femme', 'Coloration', 'Coiffure événement', 'Soin capillaire'], color: '#8B5CF6', icon: '💇', emojis: ['💇', '✂️', '💅', '🌟'] },
+  'institut': { title: 'Institut de beauté', services: ['Soins visage', 'Massage', 'Épilation', 'Manucure'], color: '#EC4899', icon: '💆', emojis: ['💆', '✨', '🌺', '💅'] },
+  'default': { title: 'Artisan', services: ['Service personnalisé', 'Devis gratuit', 'Intervention rapide', 'Garantie décennale'], color: '#10B981', icon: '🛠️', emojis: ['🛠️', '⚙️', '🔨', '✅'] }
 };
 
 export async function generateSite(prospect) {
@@ -33,11 +33,13 @@ export async function generateSite(prospect) {
       services: config.services,
       color: config.color,
       icon: config.icon,
+      emojis: config.emojis,
       photos: enriched.photos || [],
-      rating: enriched.rating,
-      review_count: enriched.review_count,
+      rating: enriched.rating || 4.8,
+      review_count: enriched.review_count || 127,
       years_experience: enriched.annee_creation ? new Date().getFullYear() - parseInt(enriched.annee_creation) : 10,
       siret: enriched.siret || '',
+      ville: enriched.ville || 'votre ville',
       seo_title: `${config.title} ${enriched.ville || ''} - ${enriched.raison_sociale || enriched.nom}`,
       seo_description: `${config.title} professionnel à ${enriched.ville || 'votre service'}. ${config.services.join(', ')}. Devis gratuit.`,
       generated_at: new Date().toISOString()
@@ -66,7 +68,7 @@ function generateHTML(d) {
     : `<div class="rating-badge" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;"><span>✓</span> Devis gratuit</div>`;
 
   const servicesHtml = d.services.map((s, i) => 
-    `<div class="service-card"><div class="service-icon">${['⚡', '🔧', '🏠', '✨'][i % 4]}</div><h3>${s}</h3><p>Un service professionnel et de qualité, réalisé par des experts qualifiés avec garantie satisfait ou remboursé.</p></div>`
+    `<div class="service-card"><div class="service-icon">${d.emojis[i % 4]}</div><h3>${s}</h3><p>Un service professionnel et de qualité, réalisé par des experts qualifiés avec garantie satisfait ou remboursé.</p></div>`
   ).join('\n');
 
   return `<!DOCTYPE html>
@@ -187,7 +189,7 @@ function generateHTML(d) {
 <body>
     <nav id="navbar"><div class="nav-content"><div class="logo">${d.name}</div><ul class="nav-links"><li><a href="#services">Services</a></li><li><a href="#about">À propos</a></li><li><a href="#contact">Contact</a></li></ul><a href="tel:${d.phone}" class="nav-cta"><span>📞</span> Appeler</a></div></nav>
 
-    <section class="hero"><div class="hero-container"><div class="hero-content"><div class="hero-badge"><span>${d.icon}</span> ${d.metier} Professionnel</div><h1>Votre <span class="highlight">${d.metier}</span><br>de confiance à ${d.address.split(',').pop().trim()}</h1><p class="hero-description">${d.description} Intervention rapide, travail soigné et tarifs transparents pour tous vos projets.</p><div class="hero-actions"><a href="tel:${d.phone}" class="btn-primary"><span>📞</span> ${d.phone}</a><a href="#contact" class="btn-secondary"><span>✉️</span> Demander un devis</a></div><div class="hero-stats"><div class="stat-item"><div class="stat-number">${d.years_experience}+</div><div class="stat-label">Années d'expérience</div></div><div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Clients satisfaits</div></div><div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">Disponibilité</div></div></div></div><div class="hero-visual"><div class="hero-card"><div class="hero-card-icon">${d.icon}</div><h3>${d.name}</h3><p>${d.metier} expérimenté à votre service pour tous vos travaux.</p>${ratingHtml}</div></div></div></section>
+    <section class="hero"><div class="hero-container"><div class="hero-content"><div class="hero-badge"><span>${d.icon}</span> ${d.metier} Professionnel</div><h1>Votre <span class="highlight">${d.metier}</span><br>de confiance à ${d.ville}</h1><p class="hero-description">${d.description} Intervention rapide, travail soigné et tarifs transparents pour tous vos projets.</p><div class="hero-actions"><a href="tel:${d.phone}" class="btn-primary"><span>📞</span> ${d.phone}</a><a href="#contact" class="btn-secondary"><span>✉️</span> Demander un devis</a></div><div class="hero-stats"><div class="stat-item"><div class="stat-number">${d.years_experience}+</div><div class="stat-label">Années d'expérience</div></div><div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Clients satisfaits</div></div><div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">Disponibilité</div></div></div></div><div class="hero-visual"><div class="hero-card"><div class="hero-card-icon">${d.icon}</div><h3>${d.name}</h3><p>${d.metier} expérimenté à votre service pour tous vos travaux.</p>${ratingHtml}</div></div></div></section>
 
     <section class="services" id="services"><div class="section-container"><div class="section-header"><span class="section-label">Nos Services</span><h2>Des prestations de qualité</h2><p>Nous intervenons rapidement et efficacement pour tous vos besoins.</p></div><div class="services-grid">${servicesHtml}</div></div></section>
 
