@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Generated sites
+../generated/
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+
+# Temp files
+/tmp/
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
