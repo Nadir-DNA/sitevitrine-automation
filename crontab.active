@@ -1,0 +1,13 @@
+# SiteVitrine Automation - DÉSACTIVÉ pour l'instant
+# Phase 1: Préparation manuelle des sites
+# Phase 2: Test SMS demain (5 prospects)
+# Phase 3: Activation auto après validation
+
+# SHELL=/bin/bash
+# PATH=/usr/local/bin:/usr/bin:/bin
+# NODE_PATH=/home/nadir/Bureau/SiteVitrine/scripts/node_modules
+
+# TODO: Activer après validation du test SMS
+# 30 0 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && /usr/bin/node src/cron-runner.js >> ../../logs/cron-00h30.log 2>&1
+
+# Pour l'instant: utiliser npm run prepare puis npm run test:sms

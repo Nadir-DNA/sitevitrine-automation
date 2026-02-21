@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
+    "prepare": "node src/cron-runner.js prep",
+    "test:sms": "node src/cron-runner.js test",
     "prospect": "node src/fetch-prospects.js",
     "generate": "node src/generate-sites.js",
     "deploy": "node src/deploy-sites.js",
-    "notify": "node src/send-emails.js",
-    "cron": "node src/cron-runner.js"
+    "sms": "node src/send-sms.js"
   },
   "dependencies": {
     "googleapis": "^131.0.0",
