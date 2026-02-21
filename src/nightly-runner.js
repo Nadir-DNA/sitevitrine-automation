@@ -9,14 +9,17 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOG_DIR = path.join(__dirname, '../../logs');
 
-// Get current hour to determine test mode
+// Get current hour and minute to determine test mode
 const HOUR = new Date().getHours();
+const MINUTE = new Date().getMinutes();
+const TIME_SLOT = `${HOUR}:${MINUTE < 10 ? '0' + MINUTE : MINUTE}`;
 
 async function log(message) {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [RUN-${HOUR}h] ${message}`;
+  const logMessage = `[${timestamp}] [RUN-${TIME_SLOT}] ${message}`;
   console.log(logMessage);
   await fs.ensureDir(LOG_DIR);
+  // Use hour for log file to group similar runs
   const logFile = path.join(LOG_DIR, `nightly-${HOUR}.log`);
   await fs.appendFile(logFile, logMessage + '\n');
 }
@@ -29,6 +32,8 @@ const MODES = {
   3: 'DEPLOY_TEST',     // 03h: Test déploiement GitHub Pages
   4: 'SMS_TEST',        // 04h: Test SMS (sans envoi)
   5: 'E2E_TEST',        // 05h: Test end-to-end complet
+  6: 'MORNING_WAKE',    // 06h20: Réveil / check matinal
+  7: 'MORNING_BATCH',   // 07h00: Démarrage journée
 };
 
 async function runFetchTest() {
@@ -209,10 +214,67 @@ async function runE2ETest() {
   }
 }
 
+// MORNING BUNCHES (6h20-7h30)
+async function runMorningWake() {
+  await log('☀️ MORNING WAKE: Check matinal rapide');
+  try {
+    // Vérifier les logs de la nuit
+    const logs = ['00-fetch', '01-scraper', '02-generate', '03-deploy', '04-sms', '05-e2e'];
+    const status = {};
+    
+    for (const logName of logs) {
+      const logFile = path.join(LOG_DIR, `${logName}.log`);
+      const exists = await fs.pathExists(logFile);
+      const content = exists ? await fs.readFile(logFile, 'utf8').catch(() => '') : '';
+      const success = content.includes('✅') && !content.includes('❌ Erreur');
+      status[logName] = { exists, success };
+      await log(`${success ? '✅' : '⚠️'} ${logName}: ${exists ? 'OK' : 'MISSING'}`);
+    }
+    
+    const allOK = Object.values(status).every(s => s.exists && s.success);
+    await log(allOK ? '✅ Nuit OK - prêt pour la journée' : '⚠️ Certains runs ont échoué');
+    
+    return { success: allOK, status };
+  } catch (error) {
+    await log(`❌ Erreur wake: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
+async function runMorningBatch() {
+  await log('🚀 MORNING BATCH: Préparation journée');
+  try {
+    // Charger les sites prêts
+    const pendingFile = path.join(LOG_DIR, 'pending-sms-test.json');
+    if (!await fs.pathExists(pendingFile)) {
+      await log('⚠️ Pas de sites en attente');
+      return { success: false, reason: 'no_pending' };
+    }
+    
+    const sites = await fs.readJson(pendingFile);
+    await log(`📦 ${sites.length} sites prêts pour envoi SMS`);
+    
+    // Récap pour toi
+    for (const site of sites.slice(0, 3)) {
+      await log(`  🌐 ${site.prospect.raison_sociale}: ${site.deployedUrl}`);
+    }
+    
+    return { success: true, sitesReady: sites.length };
+  } catch (error) {
+    await log(`❌ Erreur batch: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
 // Main runner
 async function runNightly() {
-  const mode = MODES[HOUR] || 'UNKNOWN';
-  await log(`\n========== DÉMARRAGE RUN ${HOUR}h - MODE: ${mode} ==========`);
+  const mode = (MINUTE >= 20 && HOUR === 6) ? 'MORNING_WAKE' : 
+               (MINUTE >= 40 && HOUR === 6) ? 'MORNING_CHECK' :
+               (MINUTE === 0 && HOUR === 7) ? 'MORNING_BATCH' :
+               (MINUTE >= 20 && HOUR === 7) ? 'MORNING_VALIDATE' :
+               MODES[HOUR] || 'UNKNOWN';
+  
+  await log(`\n========== DÉMARRAGE ${TIME_SLOT} - MODE: ${mode} ==========`);
   
   let result;
   switch (HOUR) {
@@ -222,12 +284,22 @@ async function runNightly() {
     case 3: result = await runDeployTest(); break;
     case 4: result = await runSMSTest(); break;
     case 5: result = await runE2ETest(); break;
+    case 6: 
+      if (MINUTE >= 40) result = await runMorningBatch(); // Actually 6h40 uses batch logic
+      else if (MINUTE >= 20) result = await runMorningWake();
+      else result = await runE2ETest(); // 6h00 fallback
+      break;
+    case 7:
+      if (MINUTE === 0) result = await runMorningBatch();
+      else if (MINUTE >= 20) result = await runMorningWake(); // Validation check
+      else result = await runMorningWake();
+      break;
     default: 
       await log('⏸️ Hors plage horaire - skip');
       result = { success: false, reason: 'out_of_range' };
   }
   
-  await log(`========== FIN RUN ${HOUR}h - ${result.success ? '✅' : '⚠️'} ==========\n`);
+  await log(`========== FIN ${TIME_SLOT} - ${result.success ? '✅' : '⚠️'} ==========\n`);
   return result;
 }
 

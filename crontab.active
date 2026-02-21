@@ -23,5 +23,18 @@ NODE_PATH=/home/nadir/Bureau/SiteVitrine/scripts/node_modules
 # 05h30: TEST E2E - Flux complet
 30 5 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/05-e2e.log 2>&1
 
-# 06h45: RAPPORT FINAL
+# 06h20 - 07h30: Post-morning runs
+# 06h20: Réveil / check matinal
+20 6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/06-20-wakeup.log 2>&1
+
+# 06h40: Batch final check
+40 6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/06-40-check.log 2>&1
+
+# 07h00: Démarrage journée
+0 7 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/07-00-start.log 2>&1
+
+# 07h20: Validation avant travail
+20 7 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/07-20-validate.log 2>&1
+
+# 06h45: RAPPORT FINAL (legacy)
 45 6 * * * cd /home/nadir/Bureau/SiteVitrine/scripts && node src/nightly-runner.js >> ../../logs/06-final.log 2>&1
